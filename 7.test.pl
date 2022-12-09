@@ -36,6 +36,9 @@ expected_tree(Tree) :-
 
 test(cmds, Tree == ExpectedTree) :-
     expected_tree(ExpectedTree),
-    solve("7.input0", Tree).
+    parse_cmds("7.input0", Tree).
+
+test(solve, Sum == 95437) :-
+    solve("7.input0", Sum).
 
 :- end_tests('7').

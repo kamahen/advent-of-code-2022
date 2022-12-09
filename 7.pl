@@ -2,14 +2,27 @@
 
 % SWI-Prolog version 9.1.0
 
-:- module('7', [solve/2, normalize_tree/2, pretty_tree/1]).
+:- module('7', [solve/0, solve/2,
+                parse_cmds/2,
+                normalize_tree/2,
+                dirs_at_most/3,
+                pretty_tree/1]).
 
 :- use_module(library(dcg/basics)).
 :- use_module(library(dcg/high_order)).
 :- use_module(library(pure_input)).
 :- use_module(library(pprint), [print_term/2]). % TODO: remove
 
-solve(Path, Filesys) :-
+solve :-
+    solve('7.input', Sum),
+    writeln(Sum).
+
+solve(Path, Sum) :-
+    parse_cmds(Path, Filesys),
+    dirs_at_most(Filesys, 100000, Dirs),
+    sumlist(Dirs, Sum).
+
+parse_cmds(Path, Filesys) :-
     phrase_from_file(lines([], [], Files), Path),
     !,
     foldl(filesys, Files, [dir([],'/',[])], Filesys0),
@@ -24,6 +37,21 @@ sum_tree([F|Fs], [F2|Fs2], Sum) :-
     sum_tree(F, F2, Sum0),
     sum_tree(Fs, Fs2, Sum1), % TODO: make tail recursive with accumulator
     Sum is Sum0 + Sum1.
+
+dirs_at_most(Filesys, AtMost, DirSizes) :-
+    phrase(dirs_at_most(Filesys, AtMost), DirSizes).
+
+dirs_at_most(file(_Dir,_Filename,_Size), _AtMost) --> [].
+dirs_at_most(dir(_Dir,_Dirname,Sum,SubdirFiles), AtMost) -->
+    (   { Sum =< AtMost }
+    ->  [Sum]
+    ;   []
+    ),
+    dirs_at_most(SubdirFiles, AtMost).
+dirs_at_most([], _) --> [].
+dirs_at_most([F|Fs], AtMost) -->
+    dirs_at_most(F, AtMost),
+    dirs_at_most(Fs, AtMost).
 
 filesys(file(Dir,FileName,Size), DirFiles0, DirFiles) :-
     filesys_(Dir, [], file(Dir,FileName,Size), DirFiles0, DirFiles).
