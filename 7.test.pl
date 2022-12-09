@@ -14,9 +14,9 @@ test_7 :-
 :- begin_tests('7').
 
 expected_tree(Tree) :-
-    normalize_tree([dir([], '/',
-                        [ dir(['/'], 'a',
-                              [ dir(['/','a'], 'e',
+    normalize_tree([dir([], '/', 48381165,
+                        [ dir(['/'], 'a', 94853,
+                              [ dir(['/','a'], 'e', 584,
                                     [ file(['/','a','e'], 'i', 584)
                                     ]),
                                 file(['/','a'], 'f', 29116),
@@ -25,7 +25,7 @@ expected_tree(Tree) :-
                               ]),
                           file(['/'], 'b.txt', 14848514),
                           file(['/'], 'c.dat', 8504156),
-                          dir(['/'], 'd',
+                          dir(['/'], 'd', 24933642,
                               [ file(['/', 'd'], 'j', 4060174),
                                 file(['/', 'd'], 'd.log', 8033020),
                                 file(['/', 'd'], 'd.ext', 5626152),
@@ -36,9 +36,6 @@ expected_tree(Tree) :-
 
 test(cmds, Tree == ExpectedTree) :-
     expected_tree(ExpectedTree),
-    nl,
-    writeln('EXPECTED'),
-    print_term(ExpectedTree, [indent_width(2), tab_width(0), right_margin(60)]), nl,
     solve("7.input0", Tree).
 
 :- end_tests('7').

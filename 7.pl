@@ -2,7 +2,7 @@
 
 % SWI-Prolog version 9.1.0
 
-:- module('7', [solve/2, normalize_tree/2]).
+:- module('7', [solve/2, normalize_tree/2, pretty_tree/1]).
 
 :- use_module(library(dcg/basics)).
 :- use_module(library(dcg/high_order)).
@@ -12,12 +12,18 @@
 solve(Path, Filesys) :-
     phrase_from_file(lines([], [], Files), Path),
     !,
-    maplist(writeln, Files),
     foldl(filesys, Files, [dir([],'/',[])], Filesys0),
-    normalize_tree(Filesys0, Filesys),
-    nl,
-    writeln('SOLVED'),
-    print_term(Filesys, [indent_width(2), tab_width(0), right_margin(60)]).
+    sum_tree(Filesys0, Filesys1, _),
+    normalize_tree(Filesys1, Filesys).
+
+sum_tree(file(Dir,Filename,Size), file(Dir,Filename,Size), Size).
+sum_tree(dir(Dir,Dirname,SubdirFiles), dir(Dir,Dirname,Sum,SubdirFiles2), Sum) :-
+    sum_tree(SubdirFiles, SubdirFiles2, Sum).
+sum_tree([], [], 0).
+sum_tree([F|Fs], [F2|Fs2], Sum) :-
+    sum_tree(F, F2, Sum0),
+    sum_tree(Fs, Fs2, Sum1), % TODO: make tail recursive with accumulator
+    Sum is Sum0 + Sum1.
 
 filesys(file(Dir,FileName,Size), DirFiles0, DirFiles) :-
     filesys_(Dir, [], file(Dir,FileName,Size), DirFiles0, DirFiles).
@@ -93,8 +99,14 @@ normalize_tree(dir(Name,DirFiles), dir(Name,SortedNormalizedDirFiles)) :-
 normalize_tree(dir(Dir,Name,DirFiles), dir(Dir,Name,SortedNormalizedDirFiles)) :-
     maplist(normalize_tree, DirFiles, NormalizedDirFiles),
     msort(NormalizedDirFiles, SortedNormalizedDirFiles).
+normalize_tree(dir(Dir,Name,Size,DirFiles), dir(Dir,Name,Size,SortedNormalizedDirFiles)) :-
+    maplist(normalize_tree, DirFiles, NormalizedDirFiles),
+    msort(NormalizedDirFiles, SortedNormalizedDirFiles).
 
 normalize_tree([F|Fs], Sorted) :-
     maplist(normalize_tree, [F|Fs], Normalized),
     msort(Normalized, Sorted).
 normalize_tree([], []).
+
+pretty_tree(Filesys) :-
+    print_term(Filesys, [indent_width(2), tab_width(0), right_margin(50)]).
