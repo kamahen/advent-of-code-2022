@@ -13,34 +13,35 @@ solve(Path, Filesys) :-
     phrase_from_file(lines([], [], Files), Path),
     !,
     maplist(writeln, Files),
-    foldl(filesys, Files, [dir('/',[])], Filesys0),
+    foldl(filesys, Files, [dir([],'/',[])], Filesys0),
     normalize_tree(Filesys0, Filesys),
     nl,
     writeln('SOLVED'),
-    print_term(Filesys, [indent_width(2), tab_width(0), right_margin(40)]).
+    print_term(Filesys, [indent_width(2), tab_width(0), right_margin(60)]).
 
 filesys(file(Dir,FileName,Size), DirFiles0, DirFiles) :-
-    filesys_(Dir, file(FileName,Size), DirFiles0, DirFiles).
+    filesys_(Dir, [], file(Dir,FileName,Size), DirFiles0, DirFiles).
 
-filesys_([], file(FileName,Size), DirFiles, [file(FileName,Size)|DirFiles]) :-
-    (   member(file(FileName,Size2), DirFiles)
+filesys_([], _, file(Dir,FileName,Size), DirFiles, [file(Dir,FileName,Size)|DirFiles]) :-
+    (   member(file(Dir,FileName,Size2), DirFiles)
     ->  assert(Size == Size2)
     ;   true
     ).
-filesys_([Dir|Dirs], FileAndSize, DirFiles0, [dir(Dir,SubDirFiles2)|DirFiles1]) :-
-    (   select(dir(Dir,SubDirFiles), DirFiles0, DirFiles1)
+filesys_([Dir|Dirs], DirSoFar, FileAndSize, DirFiles0, [dir(DirSoFar,Dir,SubDirFiles2)|DirFiles1]) :-
+    (   select(dir(DirSoFar,Dir,SubDirFiles), DirFiles0, DirFiles1)
     ->  true
     ;   SubDirFiles = [],
         DirFiles1 = DirFiles0
     ),
-    filesys_(Dirs, FileAndSize, SubDirFiles, SubDirFiles2).
+    append(DirSoFar, [Dir], DirSoFar2),
+    filesys_(Dirs, DirSoFar2, FileAndSize, SubDirFiles, SubDirFiles2).
 
 % Parsing the file of commands and outputs
 
 %! lines(+CurrDir:list(atom), +Files0:list, Files:list)// is det.
 
 % Files0, Files are an input-output pair, each being a list of the
-% form file(Dir,Path,Size), where Dir is a list of atoms that gets to
+% form file(Dir,Name,Size), where Dir is a list of atoms that gets to
 % the directory (e.g., "/foo/bar/zot.txt") would produce
 % file([/,foo,bar],'zot.txt',1234).
 % CurrDir is of the same form as the Dir in a file.
@@ -83,10 +84,16 @@ ls(CurrDir, Files0, Files) -->
     ls(CurrDir, Files1, Files).
 ls(_CurrDir, Files, Files) --> [].
 
-normalize_tree(file(File,Size), file(File,Size)).
-normalize_tree(dir(Dir,DirFiles), dir(Dir,SortedNormalizedDirFiles)) :-
+normalize_tree(file(Name,Size), file(Name,Size)).
+normalize_tree(file(Dir,Name,Size), file(Dir,Name,Size)).
+
+normalize_tree(dir(Name,DirFiles), dir(Name,SortedNormalizedDirFiles)) :-
     maplist(normalize_tree, DirFiles, NormalizedDirFiles),
     msort(NormalizedDirFiles, SortedNormalizedDirFiles).
+normalize_tree(dir(Dir,Name,DirFiles), dir(Dir,Name,SortedNormalizedDirFiles)) :-
+    maplist(normalize_tree, DirFiles, NormalizedDirFiles),
+    msort(NormalizedDirFiles, SortedNormalizedDirFiles).
+
 normalize_tree([F|Fs], Sorted) :-
     maplist(normalize_tree, [F|Fs], Normalized),
     msort(Normalized, Sorted).
