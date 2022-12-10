@@ -29,6 +29,19 @@ parse_cmds(Path, Filesys) :-
     sum_tree(Filesys0, Filesys1, _),
     normalize_tree(Filesys1, Filesys).
 
+:- meta_predicate foldl_tree(+, 3, -, +).
+
+foldl_tree(file(Dir,Filename,Size), Goal, V0, V) :-
+    call(Goal, file(Dir,Filename,Size), V0, V).
+foldl_tree(dir(Dir,Dirname,Sum,SubdirFiles), Goal, V0, V) :-
+    call(Goal, dir(Dir,Dirname,Sum,SubdirFiles), V0, V1),
+    foldl_tree(SubdirFiles, Goal, V1, V).
+foldl_tree([], _Goal, V, V).
+foldl_tree([F|Fs], Goal, V0, V) :-
+    foldl_tree(F, Goal, V0, V1),
+    foldl_tree(Fs, Goal, V1, V).
+
+% TODO: write foldl_tree/5 that generalizes sum_tree
 sum_tree(file(Dir,Filename,Size), file(Dir,Filename,Size), Size).
 sum_tree(dir(Dir,Dirname,SubdirFiles), dir(Dir,Dirname,Sum,SubdirFiles2), Sum) :-
     sum_tree(SubdirFiles, SubdirFiles2, Sum).
@@ -39,19 +52,14 @@ sum_tree([F|Fs], [F2|Fs2], Sum) :-
     Sum is Sum0 + Sum1.
 
 dirs_at_most(Filesys, AtMost, DirSizes) :-
-    phrase(dirs_at_most(Filesys, AtMost), DirSizes).
+    foldl_tree(Filesys, dirs_at_most_(AtMost), [], DirSizes).
 
-dirs_at_most(file(_Dir,_Filename,_Size), _AtMost) --> [].
-dirs_at_most(dir(_Dir,_Dirname,Sum,SubdirFiles), AtMost) -->
-    (   { Sum =< AtMost }
-    ->  [Sum]
-    ;   []
-    ),
-    dirs_at_most(SubdirFiles, AtMost).
-dirs_at_most([], _) --> [].
-dirs_at_most([F|Fs], AtMost) -->
-    dirs_at_most(F, AtMost),
-    dirs_at_most(Fs, AtMost).
+dirs_at_most_(_AtMost, file(_Dir,_Filename,_Size), V, V) :- !.
+dirs_at_most_(AtMost, dir(_Dir,_Dirname,Sum,_SubdirFiles), V0, V) :-
+    (   Sum =< AtMost
+    ->  V = [Sum|V0]
+    ;   V = V0
+    ).
 
 filesys(file(Dir,FileName,Size), DirFiles0, DirFiles) :-
     filesys_(Dir, [], file(Dir,FileName,Size), DirFiles0, DirFiles).
