@@ -1,6 +1,10 @@
 https://adventofcode.com/2022/day/7
 
-Solved using SWI-Prolog version 9.1.0
+First part solved using SWI-Prolog version 9.1.0.
+
+Second part mostly done - but there appears to be an error in the problem text ...
+the text says that 30000000 bytes are needed, yet claims that directory `e`
+is big enough at   24933642 bytes.
 
 `swipl -g solve -t halt 7.pl`
 

@@ -61,6 +61,30 @@ dirs_at_most_(AtMost, dir(_Dir,_Dirname,Sum,_SubdirFiles), V0, V) :-
     ;   V = V0
     ).
 
+dirs(Filesys, Dirs) :-
+    foldl_tree(Filesys, dirs_, [], Dirs).
+
+smallest_dir_at_least(Filesys, AtLeast, Dir) :-
+    AtLeast2 is AtLeast + 1,
+    foldl_tree(Filesys, smallest_dir_at_least_(AtLeast), AtLeast2-nil, _-Dir),
+    Dir \= nil.
+
+smallest_dir_at_least_(_AtLeast, file(_Dir,_Filename,_Size), V, V) :- !.
+smallest_dir_at_least_(AtLeast, dir(Dir,DirName,Sum,_SubdirFiles), SoFar-V0, SoFar2-V) :-
+    (   Sum >= AtLeast -> BigEnough = yes ; BigEnough = no ),
+    (   Sum < SoFar -> Min = yes ; Min = no ),
+    writeln([dir(Dir,DirName,Sum),atleast=AtLeast,sofar=SoFar, bigenough=BigEnough, min=Min]),
+    (   Sum >= AtLeast,
+        Sum < SoFar
+    ->  SoFar2 = Sum,
+        V = dir(Dir,DirName,Sum)
+    ;   SoFar2 = SoFar,
+        V = V0
+    ).
+
+dirs_(file(_Dir,_Filename,_Size), V, V) :- !.
+dirs_(dir(Dir,DirName,Sum,_SubdirFiles), V0, [dir(Dir,DirName,Sum)|V0]).
+
 filesys(file(Dir,FileName,Size), DirFiles0, DirFiles) :-
     filesys_(Dir, [], file(Dir,FileName,Size), DirFiles0, DirFiles).
 
