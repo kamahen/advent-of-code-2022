@@ -2,6 +2,9 @@
 
 % SWI-Prolog version 9.1.0
 
+% Written by Peter Ludemann (peer.ludemann@gmail.com)
+% See README.md
+
 :- module('7', [solve/0, solve/2,
                 parse_cmds/2,
                 normalize_tree/2,

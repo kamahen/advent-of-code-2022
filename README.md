@@ -23,6 +23,13 @@ Files:
 
 # Advent of Code Day 21: Monkey Math
 
+https://adventofcode.com/2022/day/21
+
+First part was pretty easy; second part required a small change and
+used a "logic variable" trick; it also used Newton-Raphson method to
+quickly converge on an answer (not guaranteed to work, but it did work
+in this situation).
+
 `swipl -g solve -t halt 21.pl`
 
 - `21.pl`: the program

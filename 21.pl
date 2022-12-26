@@ -2,6 +2,9 @@
 
 % SWI-Prolog version 9.1.0
 
+% Written by Peter Ludemann (peer.ludemann@gmail.com)
+% See README.md
+
 :- module('21', [solve/0]).
 
 :- use_module(library(dcg/basics)).
@@ -30,8 +33,8 @@ solve1(Path, Sum) :-
 solve2(Path, Humn) :-
     parse_lines(Path, Monkeys), !,
     foldl(monkey_op, Monkeys, [], MonkeyOps0),
-    select(humn-_, MonkeyOps0, MonkeyOps),
     member(root-op(_,Sum1,Sum2), MonkeyOps),
+    select(humn-_, MonkeyOps0, MonkeyOps),
     compute_monkey(Sum1, [humn-number(Humn)|MonkeyOps], SumExpr1),
     compute_monkey(Sum2, [humn-number(Humn)|MonkeyOps], SumExpr2),
     !,
@@ -40,6 +43,7 @@ solve2(Path, Humn) :-
 % Use Newton-Raphson to iterate:
 %    x1 = x0 - f(x0) / f'(x0)
 % We approximate f'(x0) by computing (f(x0+1) - f(x0)) / 1.
+% And we assume that all the numbers are integers.
 iterate_humn(Humn0, SumExpr1, SumExpr2, Humn) :-
     compute_from_term(Humn, SumExpr1, SumExpr2, Humn0, F0),
     (   F0 = 0
@@ -49,7 +53,7 @@ iterate_humn(Humn0, SumExpr1, SumExpr2, Humn) :-
         ->  Humn is Humn0 + 1
         ;   Humn1 is Humn0 - integer(F0 rdiv (F1-F0)),
             (   Humn1 = Humn0
-            ->  Humn1_ is Humn1 + 1
+            ->  Humn1_ is Humn1 + 1 % Try to avoid infinite loop
             ;   Humn1_ = Humn1
             ),
             iterate_humn(Humn1_, SumExpr1, SumExpr2, Humn)
