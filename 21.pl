@@ -17,6 +17,12 @@ solve :-
     solve2('21.input', Humn),
     writeln(Humn).
 
+% This code uses lists for the data, with member/2 and select/2 used
+% for lookup and manipulation. It would be more efficient to use
+% SWI-Prolog "dicts" or rbtrees, but for less than 2000 items,
+% efficiency isn't much of an issue; and lists exist in every Prolog
+% implementation.
+
 % This is for solving the 1st part:
 %    21.input0: Sum=152
 %    21.input:  Sum=142707821472432
