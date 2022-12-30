@@ -54,3 +54,7 @@ input.
 See also https://twitter.com/hakankj/status/1605505871332618240
 https://github.com/hakank/hakank/blob/master/advent-of-code-2022/21.pi
 
+This puzzle was also solved with Python 3.12, using the same input files:
+
+`python3 21.py`
+

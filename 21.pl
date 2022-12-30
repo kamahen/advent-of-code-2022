@@ -1,5 +1,7 @@
 % -*- mode: Prolog -*-
 
+% Advent of Code 2022, Day 21
+
 % SWI-Prolog version 9.1.0
 
 % Written by Peter Ludemann (peer.ludemann@gmail.com)
@@ -48,8 +50,9 @@ solve2(Path, Humn) :-
 
 % Use Newton-Raphson to iterate:
 %    x1 = x0 - f(x0) / f'(x0)
-% We approximate f'(x0) by computing (f(x0+1) - f(x0)) / 1.
-% And we assume that all the numbers are integers.
+% We approximate f'(x0) by computing (f(x0+1) - f(x0)) / 1:
+%    x1 = x0 - f(x0) / (f(x0+1) - f(x0))
+% And we assume that all the values for monkey 'humn' are integers.
 iterate_humn(Humn0, SumExpr1, SumExpr2, Humn) :-
     compute_from_term(Humn, SumExpr1, SumExpr2, Humn0, F0),
     (   F0 = 0
@@ -118,5 +121,3 @@ operator('+') --> "+".
 operator('*') --> "*".
 operator('-') --> "-".
 operator('/') --> "/".
-
-
