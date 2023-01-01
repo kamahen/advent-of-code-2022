@@ -39,7 +39,7 @@ https://github.com/hakank/hakank/blob/master/advent-of-code-2022/7b.pi
 https://adventofcode.com/2022/day/21
 
 First part was pretty easy; second part required a small change and
-used a "logic variable" trick; it also useds Newton-Raphson method to
+used a "logic variable" trick; it also used Newton-Raphson method to
 quickly converge on an answer (not guaranteed to work, but it did work
 in this situation). For simplicity, uses lists rather than dicts or
 RB-trees (there's less than 2000 items). Uses DCGs for more general
@@ -54,7 +54,11 @@ input.
 See also https://twitter.com/hakankj/status/1605505871332618240
 https://github.com/hakank/hakank/blob/master/advent-of-code-2022/21.pi
 
-This puzzle was also solved with Python 3.12, using the same input files:
+This puzzle was also solved with Python 3.12, using the same input
+files.  It turned out that the "logic variable" trick wasn't needed,
+provided the arithmetic was done with a custom "eval" function (the
+`calc()` method); the builtin `eval()` could have been used but it
+would have required more work to set up.
 
 `python3 21.py`
 
