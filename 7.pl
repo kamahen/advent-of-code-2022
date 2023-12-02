@@ -1,6 +1,6 @@
 % -*- mode: Prolog -*-
 
-% Advent of Code 2022, Day 21
+% Advent of Code 2022, Day 7
 
 % SWI-Prolog version 9.1.0
 
